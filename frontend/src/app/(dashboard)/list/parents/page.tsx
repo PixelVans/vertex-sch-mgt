@@ -1,14 +1,25 @@
-import FormModal from "@/components/FormModal";
+import FormContainer from "@/components/FormContainer";
 import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
 import TableSearch from "@/components/TableSearch";
-import {  role } from "@/lib/data";
 import prisma from "@/lib/prisma";
 import { ITEM_PER_PAGE } from "@/lib/settings";
 import { Parent, Prisma, Student } from "@prisma/client";
 import Image from "next/image";
 
-type ParentList = Parent & {students: Student[ ]}
+import { auth } from "@clerk/nextjs/server";
+
+type ParentList = Parent & { students: Student[] };
+
+const ParentListPage = async ({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | undefined };
+}) => {
+
+const { sessionClaims } = auth();
+const role = (sessionClaims?.metadata as { role?: string })?.role;
+
 
 const columns = [
   {
@@ -30,10 +41,14 @@ const columns = [
     accessor: "address",
     className: "hidden lg:table-cell",
   },
-  {
-    header: "Actions",
-    accessor: "action",
-  },
+  ...(role === "admin"
+    ? [
+        {
+          header: "Actions",
+          accessor: "action",
+        },
+      ]
+    : []),
 ];
 
 const renderRow = (item: ParentList) => (
@@ -48,11 +63,7 @@ const renderRow = (item: ParentList) => (
       </div>
     </td>
     <td className="hidden md:table-cell">
-    {item.students.length > 4
-  ? `${item.students.slice(0, 2).map((student) => student.name).join(", ")}...`
-  : item.students.map((student) => student.name).join(", ")}
-
-
+      {item.students.map((student) => student.name).join(",")}
     </td>
     <td className="hidden md:table-cell">{item.phone}</td>
     <td className="hidden md:table-cell">{item.address}</td>
@@ -60,8 +71,8 @@ const renderRow = (item: ParentList) => (
       <div className="flex items-center gap-2">
         {role === "admin" && (
           <>
-            <FormModal table="parent" type="update" data={item} />
-            <FormModal table="parent" type="delete" id={item.id} />
+            <FormContainer table="parent" type="update" data={item} />
+            <FormContainer table="parent" type="delete" id={item.id} />
           </>
         )}
       </div>
@@ -69,54 +80,39 @@ const renderRow = (item: ParentList) => (
   </tr>
 );
 
-
-
-
-const ParentListPage = async ({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | undefined };
-}) => {
-    const { page, ...queryParams } = searchParams;
+  const { page, ...queryParams } = searchParams;
 
   const p = page ? parseInt(page) : 1;
-   
 
-   // URL PARAMS CONDITION
+  // URL PARAMS CONDITION
 
-   const query: Prisma.ParentWhereInput = {};
+  const query: Prisma.ParentWhereInput = {};
 
-   if (queryParams) {
-     for (const [key, value] of Object.entries(queryParams)) {
-       if (value !== undefined) {
-         switch (key) {
-         
-           case "search":
-             query.name = { contains: value, mode: "insensitive" };
-             break;
-           default:
-             break;
-         }
-       }
-     }
-   }
+  if (queryParams) {
+    for (const [key, value] of Object.entries(queryParams)) {
+      if (value !== undefined) {
+        switch (key) {
+          case "search":
+            query.name = { contains: value, mode: "insensitive" };
+            break;
+          default:
+            break;
+        }
+      }
+    }
+  }
 
-
-  const [data, count] = await prisma.$transaction( [
+  const [data, count] = await prisma.$transaction([
     prisma.parent.findMany({
-      where :query,
+      where: query,
       include: {
-      students: true,
-      
-    },
+        students: true,
+      },
       take: ITEM_PER_PAGE,
-      skip: ITEM_PER_PAGE * (p - 1)
+      skip: ITEM_PER_PAGE * (p - 1),
     }),
-     prisma.parent.count({ where :query})
-  ])
-
-
- 
+    prisma.parent.count({ where: query }),
+  ]);
 
   return (
     <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
@@ -132,9 +128,7 @@ const ParentListPage = async ({
             <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
               <Image src="/sort.png" alt="" width={14} height={14} />
             </button>
-            {role === "admin" && (
-              <FormModal table="teacher" type="create"/>
-            )}
+            {role === "admin" && <FormContainer table="parent" type="create" />}
           </div>
         </div>
       </div>
