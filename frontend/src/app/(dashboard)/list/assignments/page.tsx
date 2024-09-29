@@ -123,10 +123,10 @@ const AssignmentListPage = async ({
       query.lesson.teacherId = currentUserId!;
       break;
     case "student":
-      query.lesson.class = {
+      query.lesson.class = {   
         students: {
           some: {
-            id: currentUserId!,
+            ud: currentUserId!,
           },
         },
       };
