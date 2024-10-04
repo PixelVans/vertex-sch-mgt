@@ -65,7 +65,7 @@ const TeacherListPage = async ({
     >
       <td className="flex items-center gap-4 p-4">
         <Image
-          src={item.img || "/noAvatar.png"}
+          src= {"/avatar.png"}
           alt=""
           width={40}
           height={40}
@@ -96,7 +96,7 @@ const TeacherListPage = async ({
             // <button className="w-7 h-7 flex items-center justify-center rounded-full bg-lamaPurple">
             //   <Image src="/delete.png" alt="" width={16} height={16} />
             // </button>
-            <FormContainer table="teacher" type="delete" id={item.id} />
+            <FormContainer table="teacher" type="delete" ud={item.ud} />
           )}
         </div>
       </td>

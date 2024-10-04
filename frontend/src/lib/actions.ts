@@ -1,86 +1,112 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { SubjectSchema, classSchema ,  ExamSchema,
-    StudentSchema,
-    
-    TeacherSchema,
-    ClassSchema,} from "./formValidationSchemas";
-
-  
- 
-
+import {
+  ClassSchema,
+  ExamSchema,
+  StudentSchema,
+  SubjectSchema,
+  TeacherSchema,
+} from "./formValidationSchemas";
 import prisma from "./prisma";
 import { clerkClient } from "@clerk/nextjs/server";
 
 type CurrentState = { success: boolean; error: boolean };
 
-export const createSubject = async (
-  currentState: CurrentState,
-  data: SubjectSchema
-) => {
+export const createSubject = async (currentState: CurrentState, data: SubjectSchema) => {
   try {
     await prisma.subject.create({
       data: {
         name: data.name,
         teachers: {
-          connect: data.teachers.map((teacherId) => ({ id: teacherId })),
+          create: data.teachers.map((teacherId) => ({
+            teacher: { connect: { ud: teacherId } }, // Connect the existing teacher by 'ud'
+          
+          })),
         },
       },
     });
-
-    // revalidatePath("/list/subjects");
+  
     return { success: true, error: false };
   } catch (err) {
     console.log(err);
     return { success: false, error: true };
   }
 };
+
+
+
+
 
 export const updateSubject = async (
   currentState: CurrentState,
   data: SubjectSchema
 ) => {
   try {
+    // Validate that the teacher IDs exist (optional step for data integrity)
+    const existingTeachers = await prisma.teacher.findMany({
+      where: {
+        ud: { in: data.teachers } // assuming data.teachers is an array of teacher UDs
+      }
+    });
+
+    // Extracting existing teacher IDs
+    const validTeacherIds = existingTeachers.map(teacher => teacher.ud);
+
+    // Update subject
     await prisma.subject.update({
       where: {
         id: data.id,
       },
       data: {
         name: data.name,
+        // Set the relations to the TeacherSubject model
         teachers: {
-          set: data.teachers.map((teacherId) => ({ id: teacherId })),
-        },
-      },
+          deleteMany: {}, // Optionally clear existing relationships first
+          create: validTeacherIds.map(teacherUd => ({
+            teacherId: teacherUd, // Correct field for teacher
+            // subjectId is not needed here
+          })),
+        }
+      }
     });
-
-    // revalidatePath("/list/subjects");
+  
     return { success: true, error: false };
   } catch (err) {
-    console.log(err);
+    console.error("Error during subject update:", err);
     return { success: false, error: true };
   }
 };
+
+
 
 export const deleteSubject = async (
   currentState: CurrentState,
   data: FormData
 ) => {
   const id = data.get("id") as string;
+
   try {
+    // First, delete related lessons
+    await prisma.lesson.deleteMany({
+      where: { subjectId: id }, // Find lessons related to the subject
+    });
+
+    // Now delete the subject
     await prisma.subject.delete({
       where: {
         id: id,
       },
     });
 
-    // revalidatePath("/list/subjects");
     return { success: true, error: false };
   } catch (err) {
     console.log(err);
     return { success: false, error: true };
   }
 };
+
+
 
 export const createClass = async (
   currentState: CurrentState,
@@ -127,7 +153,7 @@ export const deleteClass = async (
   try {
     await prisma.class.delete({
       where: {
-        id: id,
+        id: parseInt(id),
       },
     });
 
@@ -154,7 +180,7 @@ export const createTeacher = async (
 
     await prisma.teacher.create({
       data: {
-        ud: user.id,
+        id: user.id,
         username: data.username,
         name: data.name,
         surname: data.surname,
@@ -272,10 +298,10 @@ export const createStudent = async (
       publicMetadata:{role:"student"}
     });
 
-    await prisma.student.create({ 
+    await prisma.student.create({
       data: {
-        ud: user.id,
-        username: data.username, 
+        id: user.id,
+        username: data.username,
         name: data.name,
         surname: data.surname,
         email: data.email || null,

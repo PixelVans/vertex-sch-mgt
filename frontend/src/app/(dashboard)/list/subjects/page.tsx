@@ -7,9 +7,12 @@ import { ITEM_PER_PAGE } from "@/lib/settings";
 import { Prisma, Subject, Teacher } from "@prisma/client";
 import Image from "next/image";
 import { auth } from "@clerk/nextjs/server";
-import FormModal from "@/components/FormModal";
 
-type SubjectList = Subject & { teachers: Teacher[] };
+
+type SubjectList = Subject & {
+  teachers: { teacher: { name: string; username: string } }[];
+};
+
 
 const SubjectListPage = async ({
   searchParams,
@@ -42,16 +45,20 @@ const SubjectListPage = async ({
     >
       <td className="flex items-center gap-4 p-4">{item.name}</td>
       <td className="hidden md:table-cell">
-        {item.teachers.map((teacher) => teacher.name).join(",")}
+      {item.teachers.length > 0
+        ? item.teachers.map((teacher) => teacher.teacher.name).join(", ")
+        : "No teachers assigned"}
       </td>
       <td>
         <div className="flex items-center gap-2">
           {role === "admin" && (
             <>
-              <FormModal table="subject" type="update" data={item.id} />
-              <FormModal table="subject" type="delete" id={item.id} />
+              <FormContainer table="subject" type="update" data={item} />
+              <FormContainer table="subject" type="delete" id={item.id} />
+
             </>
           )}
+          
         </div>
       </td>
     </tr>
@@ -83,13 +90,27 @@ const SubjectListPage = async ({
     prisma.subject.findMany({
       where: query,
       include: {
-        teachers: true,
+        teachers: {
+          select: {
+            teacher: {
+              select: {
+                name: true,
+                username: true,
+              },
+            },
+          },
+        },
       },
       take: ITEM_PER_PAGE,
       skip: ITEM_PER_PAGE * (p - 1),
     }),
     prisma.subject.count({ where: query }),
   ]);
+  
+   
+ // Pretty print the data
+
+
 
   return (
     <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
@@ -106,7 +127,7 @@ const SubjectListPage = async ({
               <Image src="/sort.png" alt="" width={14} height={14} />
             </button>
             {role === "admin" && (
-              <FormModal table="subject" type="create" />
+              <FormContainer table="subject" type="create" />
             )}
           </div>
         </div>
