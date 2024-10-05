@@ -14,6 +14,7 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useFormState } from "react-dom";
 import { toast } from "react-toastify";
 import { FormContainerProps } from "./FormContainer";
+ 
 
 const deleteActionMap = {
   subject: deleteSubject,
@@ -49,6 +50,9 @@ const ClassForm = dynamic(() => import("./forms/ClassForm"), {
   loading: () => <h1>Loading...</h1>,
 });
 const ExamForm = dynamic(() => import("./forms/ExamForm"), {
+  loading: () => <h1>Loading...</h1>,
+});
+const ParentForm = dynamic(() => import("./forms/ParentForm"), {
   loading: () => <h1>Loading...</h1>,
 });
 // TODO: OTHER FORMS
@@ -95,6 +99,16 @@ const forms: {
       relatedData={relatedData}
     />
   ),
+
+  parent: (setOpen, type, data, relatedData) => (
+    < ParentForm
+      type={type}
+      data={data}
+      setOpen={setOpen}
+      relatedData={relatedData}
+    />
+  ),
+
   exam: (setOpen, type, data, relatedData) => (
     <ExamForm
       type={type}
@@ -139,7 +153,7 @@ const FormModal = ({
       } 
     
       if (state.error) {
-        toast.error(`Failed to delete ${table}. Please try again.`); // Show error message
+        toast.error(`Failed to delete ${table}. the related data that must be removed first.`); // Show error message
       }
     }, [state, router]);
     
@@ -151,7 +165,7 @@ const FormModal = ({
           All data will be lost. Are you sure you want to delete this {table}?
         </span>
         <button className="bg-red-700 text-white py-2 px-4 rounded-md border-none w-max self-center">
-        {loading ? "Deleting..." : "Delete"}
+        Delete
         </button>
       </form>
     ) : type === "create" || type === "update" ? (

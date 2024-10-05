@@ -38,6 +38,7 @@ const SingleTeacherPage = async ({
   if (!teacher) {
     return notFound();
   }
+  
   return (
     <div className="flex-1 p-4 flex flex-col gap-4 xl:flex-row">
       {/* LEFT */}
@@ -48,7 +49,7 @@ const SingleTeacherPage = async ({
           <div className="bg-lamaSky py-6 px-4 rounded-md flex-1 flex gap-4">
             <div className="w-1/3">
               <Image
-                src={"/avatar.png"}
+                src={teacher.img|| "/avatar.png"}
                 alt=""
                 width={144}
                 height={144}
@@ -101,7 +102,7 @@ const SingleTeacherPage = async ({
                 className="w-6 h-6"
               />
               <div className="">
-                <h1 className="text-xl font-semibold">90%</h1>
+                <h1 className="text-xl font-semibold">100%</h1>
                 <span className="text-sm text-gray-400">Attendance</span>
               </div>
             </div>

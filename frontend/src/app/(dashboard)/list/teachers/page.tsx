@@ -9,7 +9,16 @@ import Link from "next/link";
 import { ITEM_PER_PAGE } from "@/lib/settings";
 import { auth } from "@clerk/nextjs/server";
 
-type TeacherList = Teacher & { subjects: Subject[] } & { classes: Class[] };
+type TeacherList = Teacher & {
+  subjects: {
+    id: string;
+    teacherId: string;
+    subjectId: string;
+    subject: Subject; // Include the subject object
+  }[];
+  classes: Class[];
+};
+
 
 const TeacherListPage = async ({
   searchParams,
@@ -65,7 +74,7 @@ const TeacherListPage = async ({
     >
       <td className="flex items-center gap-4 p-4">
         <Image
-          src= {"/avatar.png"}
+          src= {item.img || "/avatar.png"}
           alt=""
           width={40}
           height={40}
@@ -78,7 +87,8 @@ const TeacherListPage = async ({
       </td>
       <td className="hidden md:table-cell">{item.username}</td>
       <td className="hidden md:table-cell">
-        {item.subjects.map((subject) => subject.name).join(",")}
+      {item.subjects.map((subject) => subject.subject.name).join(", ")}
+
       </td>
       <td className="hidden md:table-cell">
         {item.classes.map((classItem) => classItem.name).join(",")}
@@ -96,7 +106,7 @@ const TeacherListPage = async ({
             // <button className="w-7 h-7 flex items-center justify-center rounded-full bg-lamaPurple">
             //   <Image src="/delete.png" alt="" width={16} height={16} />
             // </button>
-            <FormContainer table="teacher" type="delete" ud={item.ud} />
+            <FormContainer table="teacher" type="delete" id={item.ud} />
           )}
         </div>
       </td>
@@ -135,7 +145,11 @@ const TeacherListPage = async ({
     prisma.teacher.findMany({
       where: query,
       include: {
-        subjects: true,
+        subjects: {
+          include: {
+            subject: true, // Include subject details
+          },
+        },
         classes: true,
       },
       take: ITEM_PER_PAGE,
@@ -143,6 +157,9 @@ const TeacherListPage = async ({
     }),
     prisma.teacher.count({ where: query }),
   ]);
+  
+
+ 
 
   return (
     <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">

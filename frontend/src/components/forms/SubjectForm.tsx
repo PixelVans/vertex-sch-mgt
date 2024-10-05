@@ -70,7 +70,8 @@ const SubjectForm =  ({
           register={register}
           error={errors?.name}
         />
-        {data && (
+        <div className="hidden">
+            {data && (
           <InputField
             label="Id"
             name="id"
@@ -79,6 +80,8 @@ const SubjectForm =  ({
             error={errors?.id}
             hidden          />
         )}
+        </div>
+      
         <div className="flex flex-col gap-2 w-full md:w-1/4">
           <label className="text-xs text-gray-500">Teachers</label>
           <select

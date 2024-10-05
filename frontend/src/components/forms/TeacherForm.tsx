@@ -42,8 +42,9 @@ const TeacherForm = ({
   );
 
   const onSubmit = handleSubmit((data) => {
-    console.log(data);
+    
     formAction({ ...data, img: img?.secure_url });
+   
   });
 
   const router = useRouter();
@@ -59,7 +60,7 @@ const TeacherForm = ({
   const { subjects } = relatedData;
 
   return (
-    <form className="flex flex-col gap-8" onSubmit={onSubmit}>
+    <form className="flex flex-col gap-8 px-5" onSubmit={onSubmit}>
       <h1 className="text-xl font-semibold">
         {type === "create" ? "Create a new teacher" : "Update the teacher"}
       </h1>
@@ -88,6 +89,7 @@ const TeacherForm = ({
           defaultValue={data?.password}
           register={register}
           error={errors?.password}
+          
         />
       </div>
       <span className="text-xs text-gray-400 font-medium">
@@ -137,16 +139,18 @@ const TeacherForm = ({
           error={errors.birthday}
           type="date"
         />
-        {data && (
-          <InputField
+        <div className="hidden">
+           <InputField
             label="Id"
             name="id"
-            defaultValue={data?.id}
+            defaultValue={data?.ud}
             register={register}
-            error={errors?.id}
             hidden
+           
           />
-        )}
+          </div>
+         
+        
         <div className="flex flex-col gap-2 w-full md:w-1/4">
           <label className="text-xs text-gray-500">Sex</label>
           <select
@@ -171,7 +175,7 @@ const TeacherForm = ({
             {...register("subjects")}
             defaultValue={data?.subjects}
           >
-            {subjects.map((subject: { id: number; name: string }) => (
+            {subjects.map((subject: { id: any; name: string }) => (
               <option value={subject.id} key={subject.id}>
                 {subject.name}
               </option>
@@ -184,7 +188,7 @@ const TeacherForm = ({
           )}
         </div>
         <CldUploadWidget
-          uploadPreset="school"
+          uploadPreset="vertex"
           onSuccess={(result, { widget }) => {
             setImg(result.info);
             widget.close();
@@ -192,16 +196,21 @@ const TeacherForm = ({
         >
           {({ open }) => {
             return (
+              
               <div
                 className="text-xs text-gray-500 flex items-center gap-2 cursor-pointer"
                 onClick={() => open()}
               >
                 <Image src="/upload.png" alt="" width={28} height={28} />
-                <span>Upload a photo</span>
+                <span >Upload Image</span>
+                
+                
               </div>
+             
             );
           }}
         </CldUploadWidget>
+       
       </div>
       {state.error && (
         <span className="text-red-500">Something went wrong!</span>
