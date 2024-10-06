@@ -112,8 +112,8 @@ const ParentForm = ({
         {type === "create" ? "Create a new parent" : "Update the parent"}
       </h1>
       <form className="mt-2" onSubmit={handleSubmit}>
-        <div className="flex gap-4">
-          <div className="w-1/2">
+        <div className="flex flex-col lg:flex-row   gap-4">
+          <div className="w-full lg:w-1/2">
             <input
               className="p-2 w-full bg-slate-200 rounded-md"
               value={formData.username}
@@ -163,7 +163,7 @@ const ParentForm = ({
             />
           </div>
 
-          <div className="w-1/2">
+          <div className="w-full lg:w-1/2">
             <input
               className="p-2 w-full bg-slate-200 rounded-md"
               value={formData.name}
@@ -210,7 +210,7 @@ const ParentForm = ({
             <input
               type="text"
               placeholder="Search student name..."
-              className="w-[300px] p-2 bg-transparent outline-none"
+              className="w-full ml-2 mr-2  p-2 bg-transparent outline-none"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -225,8 +225,8 @@ const ParentForm = ({
         </div>
 
         {/* Render students as checkboxes based on search results */}
-        <div className="w-full flex gap-4">
-          <div className="flex flex-col mt-4 w-1/2">
+        <div className="w-full flex flex-wrap lg:flex-nowrap gap-4">
+          <div className="flex flex-wrap flex-col mt-4 w-full lg:w-1/2">
             {myStudents.length > 0 ? (
               myStudents.map((student: Student, index) => (
                 <div key={index} className="flex items-center gap-2">
@@ -246,7 +246,7 @@ const ParentForm = ({
           </div>
 
           {/* Show and confirm the selected students */}
-          <div className="w-1/2 flex-wrap flex flex-col bg-lamaSky mt-4 rounded-lg p-2 ">
+          <div className="w-full lg:w-1/2 flex-wrap flex flex-col bg-lamaSky mt-4 rounded-lg p-2 ">
             <h1 className="font-semibold ml-2">Assigned Students:</h1>
             {assignedStudents.length > 0 && (
               <ol className="pl-4 list-decimal list-inside">
