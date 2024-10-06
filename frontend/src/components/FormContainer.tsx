@@ -18,10 +18,11 @@ export type FormContainerProps = {
     | "announcement";
   type: "create" | "update" | "delete";
   data?: any;
+  ud?: any;
   id?: any;
 };
 
-const FormContainer = async ({ table, type, data, id }: FormContainerProps) => {
+const FormContainer = async ({ table, type, data, ud ,id}: FormContainerProps) => {
   let relatedData = {};
 
   const { userId, sessionClaims } = auth();
@@ -32,7 +33,7 @@ const FormContainer = async ({ table, type, data, id }: FormContainerProps) => {
     switch (table) {
       case "subject":
         const subjectTeachers = await prisma.teacher.findMany({
-          select: { id: true, name: true, surname: true },
+          select: { ud: true, name: true, surname: true },
         });
         relatedData = { teachers: subjectTeachers };
         break;
@@ -45,12 +46,26 @@ const FormContainer = async ({ table, type, data, id }: FormContainerProps) => {
         });
         relatedData = { teachers: classTeachers, grades: classGrades };
         break;
+      
       case "teacher":
         const teacherSubjects = await prisma.subject.findMany({
           select: { id: true, name: true },
         });
         relatedData = { subjects: teacherSubjects };
         break;
+      
+      
+        case "parent":
+          const parentStudents = await prisma.student.findMany({
+            select: { ud: true, name: true },
+          });
+          relatedData = { students: parentStudents };
+          break;
+      
+      
+      
+      
+      
       case "student":
         const studentGrades = await prisma.grade.findMany({
           select: { id: true, level: true },
@@ -75,14 +90,18 @@ const FormContainer = async ({ table, type, data, id }: FormContainerProps) => {
     }
   }
 
+
+
+
   return (
     <div className="">
       <FormModal
         table={table}
         type={type}
         data={data}
+        ud={ud}
         id={id}
-       
+        relatedData={relatedData}
       />
     </div>
   );

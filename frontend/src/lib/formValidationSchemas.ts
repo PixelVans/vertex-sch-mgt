@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const subjectSchema = z.object({
-  id: z.coerce.number().optional(),
+  id: z.string().optional(), 
   name: z.string().min(1, { message: "Subject name is required!" }),
   teachers: z.array(z.string()), //teacher ids
 });
@@ -46,7 +46,17 @@ export const teacherSchema = z.object({
 });
 
 export type TeacherSchema = z.infer<typeof teacherSchema>;
-
+export type ParentSchema = {
+  ud?: any;
+  password: string;
+  username: string;
+  name: string;
+  surname: string;
+  email?: string;
+  phone: string;
+  address: string;
+  students: string[]; // To store student IDs
+};
 export const studentSchema = z.object({
   id: z.string().optional(),
   username: z

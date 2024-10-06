@@ -15,6 +15,14 @@ const Navbar = async () => {
           className="w-[200px] p-2 bg-transparent outline-none"
         />
       </div>
+
+          <div className="w-full ml-5 hidden sm:flex text-slate-800 font-light relative  items-center">
+          <span className="relative z-10"><span>Visualization </span>Sketch</span>
+          <div className="absolute w-[150px] border-b border-slate-600 top-1/2 z-0"></div>
+      </div>
+
+
+
       {/* ICONS AND USER */}
       <div className="flex items-center gap-6 justify-end w-full">
         <div className="bg-white rounded-full w-7 h-7 flex items-center justify-center cursor-pointer">
@@ -27,7 +35,7 @@ const Navbar = async () => {
           </div>
         </div>
         <div className="flex flex-col">
-          <span className="text-xs leading-3 font-medium">Name>
+          <span className="text-xs leading-3 font-medium">Evans .M.</span>
           <span className="text-[10px] text-gray-500 text-right">
             {user?.publicMetadata?.role as string}
           </span>
