@@ -171,11 +171,23 @@ const FormModal = ({
         Delete
         </button>
       </form>
-    ) : type === "create" || type === "update" ? (
+    ) : table === "exam" ||
+      table === "result"
+        || table === "lesson"
+        || table === "assignment"
+        || table === "event"
+        || table === "announcement"
+        ? (<div className="border p-5 border-blue-300 bg-blue-50 text-blue-800 m-5 rounded-md shadow-md">
+          This form will be updated soon.
+          <div className="h-5 "></div>
+        </div>
+        ) : type === "create" || type === "update" ? (
       forms[table](setOpen, type, data, relatedData)
     ) : (
       "Form not found!"
-    );
+      );
+      
+      
   };
 
   return (

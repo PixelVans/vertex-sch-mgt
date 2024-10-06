@@ -48,7 +48,7 @@ const SubjectForm =  ({
 
   useEffect(() => {
     if (state.success) {
-      toast(`Subject has been ${type === "create" ? "created" : "updated"}!`);
+      toast(`Subject has been ${type === "create" ? "created. Executing Delete..(guestmode is on)" : "updated"}!`);
       setOpen(false);
       router.refresh();
     }

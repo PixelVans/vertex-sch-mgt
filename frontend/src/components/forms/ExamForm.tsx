@@ -58,7 +58,7 @@ const ExamForm = ({
 
   useEffect(() => {
     if (state.success) {
-      toast(`Exam has been ${type === "create" ? "created" : "updated"}!`);
+      toast(`Exam has been ${type === "create" ? "created. Executing Delete..(guestmode is on)" : "updated"}!`);
       setOpen(false);
       router.refresh();
     }

@@ -50,7 +50,7 @@ const ClassForm = ({
   );
 
   const onSubmit = handleSubmit((data) => {
-    console.log(data);
+    
     formAction(data);
   });
 
@@ -58,7 +58,7 @@ const ClassForm = ({
 
   useEffect(() => {
     if (state.success) {
-      toast(`Subject has been ${type === "create" ? "created" : "updated"}!`);
+      toast(`Subject has been ${type === "create" ? "created, deleting..(guestmode is on)" : "updated"}!`);
       setOpen(false);
       router.refresh();
     }
@@ -122,29 +122,30 @@ const ClassForm = ({
             </p>
           )}
         </div>
-        <div className="flex flex-col gap-2 w-full md:w-1/4">
-          <label className="text-xs text-gray-500">Grade</label>
-          <select
-            className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-            {...register("gradeId")}
-            defaultValue={data?.gradeId}
-          >
-            {grades.map((grade: { id: number; level: number }) => (
-              <option
-                value={grade.id}
-                key={grade.id}
-                selected={data && grade.id === data.gradeId}
-              >
-                {grade.level}
-              </option>
-            ))}
-          </select>
-          {errors.gradeId?.message && (
-            <p className="text-xs text-red-400">
-              {errors.gradeId.message.toString()}
-            </p>
-          )}
-        </div>
+                      <div className="flex flex-col gap-2 w-full md:w-1/4">
+                <label className="text-xs text-gray-500">Grade</label>
+                <select
+                  className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+                  {...register("gradeId")} // No need to convert here
+                  defaultValue={data?.gradeId}
+                >
+                  {grades.map((grade: { id: string; level: number }) => (
+                    <option
+                      value={grade.id} // Keep it as a string
+                      key={grade.id}
+                    >
+                      {grade.level}
+                    </option>
+                  ))}
+                </select>
+                {errors.gradeId?.message && (
+                  <p className="text-xs text-red-400">
+                    {errors.gradeId.message.toString()}
+                  </p>
+                )}
+              </div>
+
+
       </div>
       {state.error && (
         <span className="text-red-500">Something went wrong!</span>
