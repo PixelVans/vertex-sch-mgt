@@ -46,7 +46,17 @@ export const teacherSchema = z.object({
 });
 
 export type TeacherSchema = z.infer<typeof teacherSchema>;
-
+export type ParentSchema = {
+  ud?: any;
+  password: string;
+  username: string;
+  name: string;
+  surname: string;
+  email?: string;
+  phone: string;
+  address: string;
+  students: string[]; // To store student IDs
+};
 export const studentSchema = z.object({
   id: z.string().optional(),
   username: z

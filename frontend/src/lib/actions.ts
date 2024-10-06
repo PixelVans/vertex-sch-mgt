@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import {
   ClassSchema,
   ExamSchema,
+  ParentSchema,
   StudentSchema,
   SubjectSchema,
   TeacherSchema,
@@ -105,6 +106,143 @@ export const deleteSubject = async (
     return { success: false, error: true };
   }
 };
+
+
+export const createParent = async (data: ParentSchema) => {
+  try {
+    const client = clerkClient();
+    const user = await client.users.createUser({
+      username: data.username,
+      password: data.password,
+      firstName: data.name,
+      lastName: data.surname,
+      publicMetadata: { role: "parent" }
+    });
+
+    await prisma.parent.create({
+      data: {
+        ud: user.id,
+        phone: data.phone,
+        username: data.username,
+        name: data.name,
+        surname: data.surname,
+        email: data.email || null,
+        address: data.address,
+        students: {
+          connect: (data.students || []).map((studentUd) => ({
+            ud: studentUd, // Connect students by their 'ud' field
+          })),
+        },
+      },
+    });
+
+    return { success: true, error: false };
+
+  } catch (err:any) {
+    let errorMessages = [];
+
+    // Check if the error has the specific format you expect
+    if (err.errors && Array.isArray(err.errors) && err.errors.length > 0) {
+      // Iterate through the errors and capture their messages
+      errorMessages = err.errors.map((error:any) => error.message);
+    } else if (err instanceof Error) {
+      // Capture the standard error message if it's not in the expected format
+      errorMessages.push(err.message);
+    }
+
+    console.log(err); // Log the full error for debugging
+    return { success: false, error: true, messages: errorMessages };
+  }
+};
+
+export const updateParent = async (data: ParentSchema) => {
+  try {
+    const client = clerkClient();
+    
+    // Update the user details in Clerk
+    const user = await client.users.updateUser(data.ud, {
+      username: data.username,
+      ...(data.password !== "" && { password: data.password }), // Only update password if it's provided
+      firstName: data.name,
+      lastName: data.surname,
+    });
+
+    // Update the parent details in your database
+    await prisma.parent.update({
+      where: { ud: data.ud }, // Assuming 'ud' is the unique identifier for the parent
+      data: {
+        username: data.username,
+        name: data.name,
+        surname: data.surname,
+        email: data.email || null,
+        phone: data.phone,
+        address: data.address,
+        students: {
+          connect: (data.students || []).map((studentUd) => ({
+            ud: studentUd, // Connect students by their 'ud' field
+          })),
+        },
+      },
+    });
+
+    return { success: true, error: false };
+  } catch (err: any) {
+    let errorMessages = [];
+
+    // Check if the error has the specific format you expect
+    if (err.errors && Array.isArray(err.errors) && err.errors.length > 0) {
+      // Iterate through the errors and capture their messages
+      errorMessages = err.errors.map((error: any) => error.message);
+    } else if (err instanceof Error) {
+      // Capture the standard error message if it's not in the expected format
+      errorMessages.push(err.message);
+    }
+
+    console.log(err); // Log the full error for debugging
+    return { success: false, error: true, messages: errorMessages };
+  }
+};
+
+
+export const deleteParent = async (
+  currentState: CurrentState,
+  data: FormData
+) => {
+  const id = data.get("id") as string; // Extract the ID from the form data
+  
+  try {
+    // First, delete the user from Clerk
+    await clerkClient.users.deleteUser(id);
+
+    // Optionally, delete related data from your database
+    // For example, if you want to remove any related records in Attendance, etc.
+
+    // await prisma.attendance.deleteMany({
+    //   where: {
+    //     parentId: id, // Adjust based on your schema
+    //   },
+    // });
+
+    // Finally, delete the parent record from the database
+    await prisma.parent.delete({
+      where: {
+        ud: id, // Assuming 'ud' is the unique identifier for the parent
+      },
+    });
+
+    return { success: true, error: false };
+  } catch (err) {
+    console.log(err);
+    return { success: false, error: true };
+  }
+};
+
+
+
+
+
+
+
 
 
 

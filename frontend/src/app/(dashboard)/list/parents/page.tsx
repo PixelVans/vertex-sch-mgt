@@ -72,14 +72,15 @@ const renderRow = (item: ParentList) => (
         {role === "admin" && (
           <>
             <FormContainer table="parent" type="update" data={item} />
-            <FormContainer table="parent" type="delete" id={item.id} />
+            <FormContainer table="parent" type="delete" id={item.ud} />
+            
           </>
         )}
       </div>
     </td>
   </tr>
 );
-
+  
   const { page, ...queryParams } = searchParams;
 
   const p = page ? parseInt(page) : 1;
@@ -138,6 +139,7 @@ const renderRow = (item: ParentList) => (
       <Pagination page={p} count={count} />
     </div>
   );
+ 
 };
 
 export default ParentListPage;
